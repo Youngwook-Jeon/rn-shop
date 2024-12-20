@@ -1,21 +1,33 @@
 import { Redirect, Stack, useLocalSearchParams } from "expo-router";
-import { FlatList, Image, StyleSheet, Text, View } from "react-native";
+import {
+  ActivityIndicator,
+  FlatList,
+  Image,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 
-import { CATEGORIES } from "../../../assets/categories";
-import { PRODUCTS } from "../../../assets/products";
 import { ProductListItem } from "../../components/product-list-item";
+import { getCategoryAndProducts } from "../../api/api";
 
 const Category = () => {
   const { slug } = useLocalSearchParams<{ slug: string }>();
-  const category = CATEGORIES.find((category) => category.slug === slug);
-  if (!category) return <Redirect href="/404" />;
+  const { data, error, isLoading } = getCategoryAndProducts(slug);
 
-  const products = PRODUCTS.filter((product) => product.category.slug === slug);
+  if (isLoading) return <ActivityIndicator />;
+  if (error || !data) return <Text>Error: {error?.message}</Text>;
+  if (!data.category || !data.products) return <Redirect href="/404" />;
+
+  const { category, products } = data;
 
   return (
     <View style={styles.container}>
       <Stack.Screen options={{ title: category.name }} />
-      <Image source={{ uri: category.imageUrl }} style={styles.categoryImage} />
+      <Image
+        source={{ uri: category.image_url }}
+        style={styles.categoryImage}
+      />
       <Text style={styles.categoryName}>{category.name}</Text>
       <FlatList
         data={products}

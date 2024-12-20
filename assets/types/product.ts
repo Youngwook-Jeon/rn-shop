@@ -5,9 +5,9 @@ export type Product = {
   id: number;
   title: string;
   slug: string;
-  imagesUrl: ImageSourcePropType[];
+  images_url: ImageSourcePropType[];
   price: number;
-  heroImage: ImageSourcePropType;
+  hero_image: ImageSourcePropType;
   category: Omit<Category, 'products'>;
-  maxQuantity: number;
+  max_quantity: number;
 };

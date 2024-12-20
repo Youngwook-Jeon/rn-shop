@@ -15,9 +15,10 @@ import { useCartStore } from "../store/cart-store";
 type CartItemType = {
   id: number;
   title: string;
-  image: any;
+  hero_image: string;
   price: number;
   quantity: number;
+  max_quantity: number;
 };
 
 type CartItemProps = {
@@ -35,7 +36,7 @@ const CartItem = ({
 }: CartItemProps) => {
   return (
     <View style={styles.cartItem}>
-      <Image source={item.image} style={styles.itemImage} />
+      <Image source={{ uri: item.hero_image }} style={styles.itemImage} />
       <View style={styles.itemDetails}>
         <Text style={styles.itemTitle}>{item.title}</Text>
         <Text style={styles.itemPrice}>{item.price.toFixed(2)}</Text>
