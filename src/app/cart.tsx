@@ -11,6 +11,7 @@ import {
 import { StatusBar } from "expo-status-bar";
 
 import { useCartStore } from "../store/cart-store";
+import { createOrder, createOrderItem } from "../api/api";
 
 type CartItemType = {
   id: number;
@@ -68,10 +69,44 @@ const CartItem = ({
 };
 
 export default function Cart() {
-  const { items, removeItem, incrementItem, decrementItem, getTotalPrice } =
-    useCartStore();
-  const handleCheckout = () => {
-    Alert.alert("Proceeding to Checkout", `Total amount: $${getTotalPrice()}`);
+  const {
+    items,
+    removeItem,
+    incrementItem,
+    decrementItem,
+    getTotalPrice,
+    resetCart,
+  } = useCartStore();
+
+  const { mutateAsync: createSupabaseOrder } = createOrder();
+  const { mutateAsync: createSupabaseOrderItem } = createOrderItem();
+  const handleCheckout = async () => {
+    const totalPrice = parseFloat(getTotalPrice());
+
+    try {
+      await createSupabaseOrder(
+        { totalPrice },
+        {
+          onSuccess: (data) =>
+            createSupabaseOrderItem(
+              items.map((item) => ({
+                orderId: data.id,
+                productId: item.id,
+                quantity: item.quantity,
+              })),
+              {
+                onSuccess: () => {
+                  Alert.alert("Success", "Order created successfully");
+                  resetCart();
+                },
+              }
+            ),
+        }
+      );
+    } catch (error) {
+      console.error(error);
+      Alert.alert("Error", (error as any).message);
+    }
   };
 
   return (
